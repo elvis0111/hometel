@@ -1,3 +1,4 @@
+import { HOTEL_STATUS } from "@/lib/admin";
 import prismadb from "@/lib/prismadb";
 
 export const getHotels = async (searchParams: {
@@ -17,6 +18,8 @@ export const getHotels = async (searchParams: {
         country,
         state,
         city,
+        // Only hotels validated by a super admin are listed publicly.
+        status: HOTEL_STATUS.APPROVED,
       },
       include: { rooms: true },
     });

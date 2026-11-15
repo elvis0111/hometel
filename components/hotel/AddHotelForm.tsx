@@ -41,6 +41,7 @@ import {
 import AddRoomForm from '../room/AddRoomForm';
 import RoomCard from '../room/RoomCard';
 import { Separator } from '../ui/separator';
+import HotelStatusBadge from './HotelStatusBadge';
 
 
 interface AddHotelFormProps {
@@ -171,7 +172,9 @@ const AddHotelForm = ({ hotel }: AddHotelFormProps) => {
             axios.post('/api/hotel', values).then((res) => {
                 toast({
                     variant: "success",
-                    description: '🎉 Hotel created!'
+                    description: res.data.status === 'PENDING'
+                        ? '🎉 Hotel created! It will be listed once an admin validates it.'
+                        : '🎉 Hotel created!'
                 })
                 router.push(`/hotel/${res.data.id}`)
                 setIsLoading(false)
@@ -241,6 +244,15 @@ const AddHotelForm = ({ hotel }: AddHotelFormProps) => {
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <h3 className='text-lg font-semibold'>{hotel ? 'Update your hotel!' : 'Describe your hotel!'}</h3>
+                {hotel && hotel.status !== 'APPROVED' && <Alert>
+                    <Terminal className="h-4 w-4" />
+                    <AlertTitle className='flex items-center gap-2'>Moderation <HotelStatusBadge status={hotel.status} /></AlertTitle>
+                    <AlertDescription>
+                        {hotel.status === 'PENDING'
+                            ? 'Your hotel is waiting for validation by an admin. It will appear on the home page once approved.'
+                            : 'Your hotel was rejected by an admin and is not publicly listed.'}
+                    </AlertDescription>
+                </Alert>}
                 <div className='flex flex-col md:flex-row gap-6'>
                     <div className='flex-1 flex flex-col gap-6'>
                         <FormField

@@ -9,6 +9,7 @@ import { Dumbbell, MapPin } from "lucide-react";
 import useLocation from "@/hooks/useLocation";
 import { Button } from "../ui/button";
 import { FaSwimmer } from "react-icons/fa";
+import HotelStatusBadge from "./HotelStatusBadge";
 
 const HotelCard = ({ hotel }: { hotel: HotelWithRooms }) => {
 
@@ -31,6 +32,7 @@ const HotelCard = ({ hotel }: { hotel: HotelWithRooms }) => {
             </div>
             <div className="flex-1 flex flex-col justify-between h-[210px] gap-1 p-1 py-2 text-sm">
                 <h3 className="font-semibold text-xl">{hotel.title}</h3>
+                {hotel.status !== "APPROVED" && <HotelStatusBadge status={hotel.status} className="w-fit" />}
                 <div className="text-primary/90">{hotel.description.substring(0, 45)}...</div>
                 <div className="text-primary/90">
                     <AmenityItem>

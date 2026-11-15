@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import Container from '@/components/Container'
 import { Toaster } from "@/components/ui/toaster"
 import LocationFilter from '@/components/LocationFilter'
+import { isAdmin } from '@/lib/admin'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -33,7 +34,7 @@ export default function RootLayout({
             disableTransitionOnChange>
             <Toaster />
             <main className='flex flex-col min-h-screen bg-secondary'>
-              <NavBar />
+              <NavBar isAdmin={isAdmin()} />
               <LocationFilter />
               <section className='flex-grow'>
                 <Container>

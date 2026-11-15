@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { BookOpenCheck, ChevronsUpDown, Hotel, Plus } from "lucide-react"
+import { BookOpenCheck, ChevronsUpDown, Hotel, Plus, ShieldCheck } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useRouter } from "next/navigation"
 
-export function NavMenu() {
+export function NavMenu({ isAdmin = false }: { isAdmin?: boolean }) {
     const router = useRouter()
     return (
         <DropdownMenu>
@@ -31,6 +31,9 @@ export function NavMenu() {
                 <DropdownMenuItem className="cursor-pointer flex gap-2 items-center" onClick={() => router.push('/my-bookings')}>
                     <BookOpenCheck size={15} /> <span>My Bookings</span>
                 </DropdownMenuItem>
+                {isAdmin && <DropdownMenuItem className="cursor-pointer flex gap-2 items-center" onClick={() => router.push('/admin')}>
+                    <ShieldCheck size={15} /> <span>Admin</span>
+                </DropdownMenuItem>}
             </DropdownMenuContent>
         </DropdownMenu>
     )

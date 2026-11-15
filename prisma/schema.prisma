@@ -31,7 +31,12 @@ model Hotel {
   movieNights         Boolean   @default(false)
   swimmingPool        Boolean   @default(false)
   coffeeShop          Boolean   @default(false)
-  addedAt             DateTime  @default(now())
+  // Moderation: PENDING | APPROVED | REJECTED.
+  // The default only backfills hotels that existed before moderation;
+  // new hotels are created as PENDING by POST /api/hotel unless the author is an admin.
+  status              String    @default("APPROVED")
+  reviewedAt          DateTime?
+  addedAt            DateTime  @default(now())
   updatedAT           DateTime  @default(now())
   rooms               Room[]
   bookings            Booking[]

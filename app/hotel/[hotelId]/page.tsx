@@ -1,6 +1,7 @@
 import { getHotelById } from "@/actions/getHotelById";
 import AddHotelForm from "@/components/hotel/AddHotelForm";
 import { auth } from "@clerk/nextjs";
+import { canManage } from "@/lib/admin";
 
 interface HotelPageProps {
     params: {
@@ -14,7 +15,8 @@ const Hotel = async ({ params }: HotelPageProps) => {
 
     if (!userId) return <div>Not authenticated...</div>
 
-    if (hotel && hotel.userId !== userId) return <div>Access denied...</div>
+    // The author and super admins can edit the hotel.
+    if (hotel && !canManage(hotel.userId, userId)) return <div>Access denied...</div>
 
     return (<div>
         <AddHotelForm hotel={hotel} />

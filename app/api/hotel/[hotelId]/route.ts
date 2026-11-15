@@ -1,3 +1,4 @@
+import { canManage } from "@/lib/admin";
 import prismadb from "@/lib/prismadb";
 import { auth } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
@@ -18,11 +19,28 @@ export async function PATCH(
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
+    const existing = await prismadb.hotel.findUnique({
+      where: { id: params.hotelId },
+      select: { userId: true },
+    });
+
+    if (!existing) {
+      return new NextResponse("Hotel not found", { status: 404 });
+    }
+
+    if (!canManage(existing.userId, userId)) {
+      return new NextResponse("Forbidden", { status: 403 });
+    }
+
+    // Ownership and moderation fields cannot be changed through this route
+    // (moderation goes through /api/admin/hotel/[hotelId]).
+    const { id, userId: _u, status, reviewedAt, addedAt, ...data } = body;
+
     const hotel = await prismadb.hotel.update({
       where: {
         id: params.hotelId,
       },
-      data: { ...body },
+      data: { ...data, updatedAT: new Date() },
     });
 
     return NextResponse.json(hotel);
@@ -45,6 +63,19 @@ export async function DELETE(
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    const existing = await prismadb.hotel.findUnique({
+      where: { id: params.hotelId },
+      select: { userId: true },
+    });
+
+    if (!existing) {
+      return new NextResponse("Hotel not found", { status: 404 });
+    }
+
+    if (!canManage(existing.userId, userId)) {
+      return new NextResponse("Forbidden", { status: 403 });
     }
 
     const hotel = await prismadb.hotel.delete({

@@ -9,7 +9,7 @@ import SearchInput from "../SearchInput";
 import { ModeToggle } from "../theme-toggle";
 import { NavMenu } from "./NavMenu";
 
-const NavBar = () => {
+const NavBar = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     const router = useRouter()
     const { userId } = useAuth()
 
@@ -24,7 +24,7 @@ const NavBar = () => {
                 <div className="flex gap-3 items-center">
                     <div>
                         <ModeToggle />
-                        <NavMenu />
+                        <NavMenu isAdmin={isAdmin} />
                     </div>
                     <UserButton afterSignOutUrl="/" />
                     {!userId && <>

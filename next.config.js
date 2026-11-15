@@ -7,6 +7,13 @@ const nextConfig = {
                 hostname: 'utfs.io',
                 port: '',
                 pathname: '/**'
+            },
+            {
+                // Clerk profile pictures (author profiles)
+                protocol: 'https',
+                hostname: 'img.clerk.com',
+                port: '',
+                pathname: '/**'
             }
         ]
     }

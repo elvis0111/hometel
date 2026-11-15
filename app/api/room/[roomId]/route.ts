@@ -1,6 +1,33 @@
+import { canManage } from "@/lib/admin";
 import prismadb from "@/lib/prismadb";
 import { auth } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
+
+/** Returns an error response, or null when the user may manage the room. */
+const checkRoomAccess = async (roomId: string, userId: string | null) => {
+  if (!roomId) {
+    return new NextResponse("Room Id is required", { status: 400 });
+  }
+
+  if (!userId) {
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
+
+  const room = await prismadb.room.findUnique({
+    where: { id: roomId },
+    select: { Hotel: { select: { userId: true } } },
+  });
+
+  if (!room) {
+    return new NextResponse("Room not found", { status: 404 });
+  }
+
+  if (!room.Hotel || !canManage(room.Hotel.userId, userId)) {
+    return new NextResponse("Forbidden", { status: 403 });
+  }
+
+  return null;
+};
 
 export async function PATCH(
   req: Request,
@@ -10,24 +37,22 @@ export async function PATCH(
     const body = await req.json();
     const { userId } = auth();
 
-    if (!params.roomId) {
-      return new NextResponse("Room Id is required", { status: 400 });
-    }
+    const denied = await checkRoomAccess(params.roomId, userId);
+    if (denied) return denied;
 
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
+    // A room cannot be moved to another hotel.
+    const { id, hotelId, ...data } = body;
 
     const room = await prismadb.room.update({
       where: {
         id: params.roomId,
       },
-      data: { ...body },
+      data,
     });
 
     return NextResponse.json(room);
   } catch (error) {
-    console.log("Error at /api/room/hotelId PATCH", error);
+    console.log("Error at /api/room/roomId PATCH", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
@@ -39,13 +64,8 @@ export async function DELETE(
   try {
     const { userId } = auth();
 
-    if (!params.roomId) {
-      return new NextResponse("Room Id is required", { status: 400 });
-    }
-
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
+    const denied = await checkRoomAccess(params.roomId, userId);
+    if (denied) return denied;
 
     const room = await prismadb.room.delete({
       where: {
